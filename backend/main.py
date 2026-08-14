@@ -1,25 +1,18 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from backend.database import SessionLocal
+from backend.dependencies import get_db
 from backend import models, schemas
 
 # Creates the API application 
 app = FastAPI()
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 # When someone sends a GET request to "/", it will run the function below 
 @app.get("/")
 def root():
     return {"message": "Murph Detail API is running"}
 
-@app.post("/customers")
+@app.post("/customers", response_model = schemas.CustomerResponse)
 def create_customer(
     customer: schemas.CustomerCreate,
     db: Session = Depends(get_db)
@@ -50,12 +43,12 @@ def create_customer(
 
     return new_customer
 
-@app.get("/customers")
+@app.get("/customers", response_model = list[schemas.CustomerResponse])
 def get_customers(db: Session = Depends(get_db)):
     customers = db.query(models.Customer).all()
     return customers
 
-@app.post("/vehicles")
+@app.post("/vehicles", response_model = schemas.VehicleResponse)
 def create_vehicle(
     vehicle: schemas.VehicleCreate,
     db: Session = Depends(get_db)
@@ -83,12 +76,12 @@ def create_vehicle(
 
     return new_vehicle
 
-@app.get("/vehicles")
+@app.get("/vehicles", response_model = list[schemas.VehicleResponse])
 def get_vehicles(db: Session = Depends(get_db)):
     vehicles = db.query(models.Vehicle).all()
     return vehicles
 
-@app.post("/services")
+@app.post("/services", response_model = schemas.ServiceResponse)
 def create_service(
     service: schemas.ServiceCreate,
     db: Session = Depends(get_db)
@@ -123,11 +116,11 @@ def create_service(
 
     return new_service
 
-@app.get("/services")
+@app.get("/services", response_model = list[schemas.ServiceResponse])
 def get_services(db: Session = Depends(get_db)):
     return db.query(models.Service).all()
 
-@app.post("/service-prices")
+@app.post("/service-prices", response_model = schemas.ServicePriceResponse)
 def create_service_price(
     service_price: schemas.ServicePriceCreate,
     db: Session = Depends(get_db)
@@ -177,11 +170,11 @@ def create_service_price(
 
     return new_price
 
-@app.get("/service-prices")
+@app.get("/service-prices", response_model = list[schemas.ServicePriceResponse])
 def get_service_prices(db: Session = Depends(get_db)):
     return db.query(models.ServicePrice).all()
 
-@app.post("/appointments")
+@app.post("/appointments", response_model = schemas.AppointmentResponse)
 def create_appointment(
     appointment: schemas.AppointmentCreate,
     db: Session = Depends(get_db)
@@ -243,6 +236,22 @@ def create_appointment(
             detail = "Price not found for this service and vehicle type"
         )
 
+    conflicting_appointment = (
+    db.query(models.Appointment)
+    .filter(
+        models.Appointment.appointment_date == appointment.appointment_date,
+        models.Appointment.appointment_time == appointment.appointment_time,
+        models.Appointment.status != "Cancelled"
+    )
+    .first()
+    )
+
+    if conflicting_appointment:
+        raise HTTPException(
+            status_code = 409,
+            detail = "This appointment time is already booked"
+        )
+
     new_appointment = models.Appointment(
         customer_id = appointment.customer_id,
         vehicle_id = appointment.vehicle_id,
@@ -260,6 +269,50 @@ def create_appointment(
 
     return new_appointment
 
-@app.get("/appointments")
+@app.get("/appointments", response_model = list[schemas.AppointmentResponse])
 def get_appointments(db: Session = Depends(get_db)):
     return db.query(models.Appointment).all()
+
+@app.get("/appointments/{appointment_id}", response_model = schemas.AppointmentResponse)
+def get_appointment(
+    appointment_id: int,
+    db: Session = Depends(get_db)
+):
+    appointment = (
+        db.query(models.Appointment)
+        .filter(models.Appointment.appointment_id == appointment_id)
+        .first()
+    )
+
+    if not appointment:
+        raise HTTPException(
+            status_code = 404,
+            detail = "Appointment not found"
+        )
+
+    return appointment
+
+@app.patch("/appointments/{appointment_id}/status", response_model = schemas.AppointmentResponse)
+def update_appointment_status(
+    appointment_id: int,
+    status_update: schemas.AppointmentStatusUpdate,
+    db: Session = Depends(get_db)
+):
+    appointment = (
+        db.query(models.Appointment)
+        .filter(models.Appointment.appointment_id == appointment_id)
+        .first()
+    )
+
+    if not appointment:
+        raise HTTPException(
+            status_code = 404,
+            detail = "Appointment not found"
+        )
+
+    appointment.status = status_update.status
+
+    db.commit()
+    db.refresh(appointment)
+
+    return appointment
