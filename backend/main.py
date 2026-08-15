@@ -1,11 +1,39 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from backend.dependencies import get_db
 from backend import models, schemas
 
+from fastapi.middleware.cors import CORSMiddleware
+from datetime import date
+
+# API Create things and Get things 
+# Below is to start FastAPI server
+# python -m uvicorn backend.main:app --reload
+# http://127.0.0.1:8000/docs
+
 # Creates the API application 
 app = FastAPI()
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins = ["http://localhost:5173"],
+    allow_credentials = True,
+    allow_methods = ["*"],
+    allow_headers = ["*"],
+)
+
+BUSINESS_HOURS = {
+    0: {"open": 1050, "close": 1350},  # Monday
+    1: {"open": 1050, "close": 1350},  # Tuesday
+    2: {"open": 1050, "close": 1350},  # Wednesday
+    3: {"open": 1050, "close": 1350},  # Thursday
+    4: {"open": 480, "close": 1350},   # Friday
+    5: {"open": 480, "close": 1350},   # Saturday
+    6: {"open": 480, "close": 1350}    # Sunday
+}
 
 # When someone sends a GET request to "/", it will run the function below 
 @app.get("/")
@@ -47,6 +75,25 @@ def create_customer(
 def get_customers(db: Session = Depends(get_db)):
     customers = db.query(models.Customer).all()
     return customers
+
+@app.get("/customers/email/{email}", response_model = schemas.CustomerResponse)
+def get_customer_by_email(
+    email: str,
+    db: Session = Depends(get_db)
+):
+    customer = (
+        db.query(models.Customer)
+        .filter(func.lower(models.Customer.email) == email.lower())
+        .first()
+    )
+
+    if not customer:
+        raise HTTPException(
+            status_code = 404,
+            detail = "Customer not found"
+        )
+
+    return customer
 
 @app.post("/vehicles", response_model = schemas.VehicleResponse)
 def create_vehicle(
@@ -133,14 +180,14 @@ def create_service_price(
 
     if not service:
         raise HTTPException(
-            status_code=404,
-            detail="Service not found"
+            status_code = 404,
+            detail = "Service not found"
         )
 
     if service_price.price < 0:
         raise HTTPException(
-            status_code=400,
-            detail="Price cannot be negative"
+            status_code = 400,
+            detail = "Price cannot be negative"
         )
 
     existing_price = (
@@ -236,22 +283,96 @@ def create_appointment(
             detail = "Price not found for this service and vehicle type"
         )
 
-    conflicting_appointment = (
-    db.query(models.Appointment)
-    .filter(
-        models.Appointment.appointment_date == appointment.appointment_date,
-        models.Appointment.appointment_time == appointment.appointment_time,
-        models.Appointment.status != "Cancelled"
-    )
-    .first()
-    )
-
-    if conflicting_appointment:
+    if service_price.duration_minutes is None:
         raise HTTPException(
-            status_code = 409,
-            detail = "This appointment time is already booked"
+            status_code = 400,
+            detail = "This service is not currently available for booking"
         )
 
+    new_start_minutes = (
+        appointment.appointment_time.hour * 60
+        + appointment.appointment_time.minute
+    )
+
+    new_end_minutes = (
+        new_start_minutes + service_price.duration_minutes
+    )
+
+    day_of_week = appointment.appointment_date.weekday()
+
+    business_hours = BUSINESS_HOURS[day_of_week]
+
+    opening_minutes = business_hours["open"]
+    closing_minutes = business_hours["close"]
+
+    if new_start_minutes < opening_minutes:
+        raise HTTPException(
+            status_code = 400,
+            detail = "Appointment is before business hours"
+        )
+
+    if new_end_minutes > closing_minutes:
+        raise HTTPException(
+            status_code = 400,
+            detail = "Appointment would end after business hours"
+        )
+
+    existing_appointments = (
+        db.query(models.Appointment)
+        .filter(
+            models.Appointment.appointment_date == appointment.appointment_date,
+            models.Appointment.status != "Cancelled"
+        )
+        .all()
+    )
+
+    for existing_appointment in existing_appointments:
+
+        existing_vehicle = (
+            db.query(models.Vehicle)
+            .filter(
+                models.Vehicle.vehicle_id == existing_appointment.vehicle_id
+            )
+            .first()
+        )
+
+        if not existing_vehicle:
+            continue
+
+        existing_service_price = (
+            db.query(models.ServicePrice)
+            .filter(
+                models.ServicePrice.service_id == existing_appointment.service_id,
+                models.ServicePrice.vehicle_type == existing_vehicle.vehicle_type
+            )
+            .first()
+        )
+
+        if not existing_service_price:
+            continue
+
+        if existing_service_price.duration_minutes is None:
+            continue
+
+        existing_start_minutes = (
+            existing_appointment.appointment_time.hour * 60
+            + existing_appointment.appointment_time.minute
+        )
+
+        existing_end_minutes = (
+            existing_start_minutes
+            + existing_service_price.duration_minutes
+        )
+
+        if (
+            new_start_minutes < existing_end_minutes
+            and new_end_minutes > existing_start_minutes
+        ):
+            raise HTTPException(
+                status_code = 409,
+                detail = "This appointment would overlap an existing appointment"
+            )
+    
     new_appointment = models.Appointment(
         customer_id = appointment.customer_id,
         vehicle_id = appointment.vehicle_id,
@@ -316,3 +437,63 @@ def update_appointment_status(
     db.refresh(appointment)
 
     return appointment
+
+@app.get("/availability/{appointment_date}")
+def get_availability(
+    appointment_date: date,
+    db: Session = Depends(get_db)
+):
+    appointments = (
+        db.query(models.Appointment)
+        .filter(
+            models.Appointment.appointment_date == appointment_date,
+            models.Appointment.status != "Cancelled"
+        )
+        .all()
+    )
+
+    booked_appointments = []
+
+    for appointment in appointments:
+
+        vehicle = (
+            db.query(models.Vehicle)
+            .filter(
+                models.Vehicle.vehicle_id == appointment.vehicle_id
+            )
+            .first()
+        )
+
+        service_price = (
+            db.query(models.ServicePrice)
+            .filter(
+                models.ServicePrice.service_id == appointment.service_id,
+                models.ServicePrice.vehicle_type == vehicle.vehicle_type
+            )
+            .first()
+        )
+
+        if service_price is None:
+            continue
+
+        if service_price.duration_minutes is None:
+            continue
+
+        start_hour = appointment.appointment_time.hour
+        start_minute = appointment.appointment_time.minute
+
+        start_minutes = (start_hour * 60) + start_minute
+
+        end_minutes = (
+            start_minutes + service_price.duration_minutes
+        )
+
+        booked_appointments.append({
+            "start_minutes": start_minutes,
+            "end_minutes": end_minutes
+        })
+
+    return {
+        "date": appointment_date,
+        "booked_appointments": booked_appointments
+    }

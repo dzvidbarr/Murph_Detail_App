@@ -4,7 +4,8 @@ from sqlalchemy.sql import func
 from backend.database import Base
 from sqlalchemy import (Column, Integer, String, DateTime, Date, Time, Text, ForeignKey, Numeric)
 
-# Customer Table 
+# Pretty much turning SQL into Python
+# Customer table 
 class Customer(Base):
     __tablename__ = "customers"
     customer_id = Column(Integer, primary_key = True, index = True)
@@ -16,6 +17,7 @@ class Customer(Base):
     vehicles = relationship("Vehicle", back_populates = "customer")
     appointments = relationship("Appointment", back_populates = "customer")
 
+# Vehicle table
 class Vehicle(Base):
     __tablename__ = "vehicles"
     vehicle_id = Column(Integer, primary_key = True, index = True)
@@ -24,6 +26,7 @@ class Vehicle(Base):
     customer = relationship("Customer", back_populates = "vehicles")
     appointments = relationship("Appointment", back_populates = "vehicle")
 
+# Service table
 class Service(Base):
     __tablename__ = "services"
     service_id = Column(Integer, primary_key = True, index = True)
@@ -33,6 +36,7 @@ class Service(Base):
     prices = relationship("ServicePrice", back_populates = "service")
     appointments = relationship("Appointment", back_populates = "service")
 
+# Service price table
 class ServicePrice(Base):
     __tablename__ = "service_prices"
     service_price_id = Column(Integer, primary_key = True, index = True)
@@ -40,7 +44,9 @@ class ServicePrice(Base):
     vehicle_type = Column(String(10), nullable = False)
     price = Column(Numeric(10, 2), nullable = False)
     service = relationship("Service", back_populates = "prices")
+    duration_minutes = Column(Integer, nullable = True)
 
+# Appointment table 
 class Appointment(Base):
     __tablename__ = "appointments"
     appointment_id = Column(Integer, primary_key = True, index = True)

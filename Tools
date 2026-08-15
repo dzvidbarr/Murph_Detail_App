@@ -1,0 +1,11 @@
+# Check github status
+git status
+
+# Add to github 
+git add . 
+
+# Commit to github 
+git commit -m "commit message"
+
+# Push to github
+git push 
