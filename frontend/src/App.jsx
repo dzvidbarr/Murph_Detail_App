@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import './App.css'
+import murphLogo from "./assets/logo.png"
+import heroCar from "./assets/car.png"
 
 function App() {
 
@@ -24,6 +26,8 @@ function App() {
 
   // Find the selected service
   const bookingService = services.find(service => service.service_id === selectedService)
+
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const today = new Date().toLocaleDateString("en-CA")
 
@@ -161,25 +165,123 @@ function App() {
     timeDisplay = formatTime(selectedTime)
   }
 
+  function getServiceIcon(serviceName) {
+
+    // Refresh
+    if (serviceName === "Refresh") {
+      return (
+        <svg
+          viewBox = "0 0 24 24"
+          fill = "none"
+          stroke = "currentColor"
+          strokeWidth = "1.8"
+          strokeLinecap = "round"
+          strokeLinejoin = "round"
+        >
+          <path d = "M12 2.5C12 2.5 5.5 9.5 5.5 14.5C5.5 18.1 8.4 21 12 21C15.6 21 18.5 18.1 18.5 14.5C18.5 9.5 12 2.5 12 2.5Z" />
+          <path d = "M9 15.5C9.5 17.2 10.7 18 12.2 18" />
+        </svg>
+      )
+    }
+
+    if (serviceName === "Full Reset") {
+      return (
+        <svg
+          viewBox = "0 0 24 24"
+          fill = "none"
+          stroke = "currentColor"
+          strokeWidth = "1.8"
+          strokeLinecap = "round"
+          strokeLinejoin = "round"
+        >
+          <path d = "M12 3L20 6V11C20 16 16.6 19.5 12 21C7.4 19.5 4 16 4 11V6L12 3Z" />
+          <path d = "M8.5 12L11 14.5L16 9.5" />
+        </svg>
+      )
+    }
+
+    if (serviceName === "Exterior Only") {
+      return (
+        <svg
+          viewBox = "0 0 24 24"
+          fill = "none"
+          stroke = "currentColor"
+          strokeWidth = "1.8"
+          strokeLinecap = "round"
+          strokeLinejoin = "round"
+        >
+          <path d = "M5 11L7 6H17L19 11" />
+          <path d = "M4 11H20C21.1 11 22 11.9 22 13V17H20V19H17V17H7V19H4V17H2V13C2 11.9 2.9 11 4 11Z" />
+          <circle cx = "6.5" cy = "14" r = "1" />
+          <circle cx = "17.5" cy = "14" r = "1" />
+        </svg>
+      )
+    }
+
+    if (serviceName === "Interior Only") {
+      return (
+        <svg
+          viewBox = "0 0 24 24"
+          fill = "none"
+          stroke = "currentColor"
+          strokeWidth = "1.8"
+          strokeLinecap = "round"
+          strokeLinejoin = "round"
+        >
+          <path d = "M12 3L13.2 7.8L18 9L13.2 10.2L12 15L10.8 10.2L6 9L10.8 7.8L12 3Z" />
+          <path d = "M18.5 14L19.2 16.8L22 17.5L19.2 18.2L18.5 21L17.8 18.2L15 17.5L17.8 16.8L18.5 14Z" />
+          <path d = "M5 14L5.6 16.4L8 17L5.6 17.6L5 20L4.4 17.6L2 17L4.4 16.4L5 14Z" />
+        </svg>
+      )
+    }
+
+    // Default icon for any other service
+    return (
+      <svg
+        viewBox = "0 0 24 24"
+        fill = "none"
+        stroke = "currentColor"
+        strokeWidth = "1.8"
+        strokeLinecap = "round"
+        strokeLinejoin = "round"
+      >
+        <path d = "M12 3L13.5 9L19.5 10.5L13.5 12L12 18L10.5 12L4.5 10.5L10.5 9L12 3Z" />
+        <path d = "M19 15L19.7 17.3L22 18L19.7 18.7L19 21L18.3 18.7L16 18L18.3 17.3L19 15Z" />
+      </svg>
+    )
+  }
+
   async function handleBooking() {
 
-    if (firstName === "") {
+    if (firstName.trim() === "") {
       alert("Please enter your first name.")
       return
     }
 
-    if (lastName === "") {
+    if (lastName.trim() === "") {
       alert("Please enter your last name.")
       return
     }
 
-    if (email === "") {
+    if (email.trim() === "") {
       alert("Please enter your email.")
       return
     }
 
-    if (phone === "") {
+    if (!email.includes("@") || !email.includes(".")) {
+      alert("Please enter a valid email address.")
+      return
+    }
+
+    if (phone.trim() === "") {
       alert("Please enter your phone number.")
+      return
+    }
+
+    const phoneNumbersOnly = phone.replace(/\D/g, "")
+
+    if (phoneNumbersOnly.length !== 10) {
+      alert("Please enter a valid 10-digit phone number.")
       return
     }
 
@@ -413,41 +515,178 @@ function App() {
     }
   }
 
+  let navLinksClass = "nav-links"
+
+  if (menuOpen) 
+  {
+    navLinksClass = "nav-links open"
+  }
+
   return (
+
     <div>
+      {/* Navigation bar (Header) */} 
       <nav className = "navbar">
+        {/* Logo */}
+        <a className = "logo" href = "#home">
+          <img
+            src = {murphLogo}
+            alt = "Murph Detail"
+          />
+        </a>
+        {/* Menu button (Mobile Only */}
+        <button
+          className = "menu-button"
+          onClick = {() => setMenuOpen(!menuOpen)}
+        >
+          ☰
+        </button>
+        {/* Navigation Links */}
+        <div className = {navLinksClass}>
 
-        <div className = "logo">
-          Murph Detail
-        </div>
+          <a
+            href = "#home"
+            onClick = {() => setMenuOpen(false)}
+          >
+            Home
+          </a>
 
-        <div className = "nav-links">
-          <a href = "#home">Home</a>
-          <a href = "#services">Services</a>
-          <a href = "#contact">Contact</a>
-          <a href = "#booking">Book Now</a>
+          <a
+            href = "#services"
+            onClick = {() => setMenuOpen(false)}
+          >
+            Services
+          </a>
+
+          <a
+            href = "#contact"
+            onClick = {() => setMenuOpen(false)}
+          >
+            Contact
+          </a>
+          {/* Custom booking button */}
+          <a className = "book-nav-button" href = "#booking">
+
+            <svg
+              className = "calendar-icon"
+              viewBox = "0 0 24 24"
+              fill = "none"
+              stroke = "currentColor"
+              strokeWidth = "2"
+              strokeLinecap = "round"
+              strokeLinejoin = "round"
+            >
+              <rect x = "3" y = "5" width = "18" height = "16" rx = "2" />
+              <line x1 = "16" y1 = "3" x2 = "16" y2 = "7" />
+              <line x1 = "8" y1 = "3" x2 = "8" y2 = "7" />
+              <line x1 = "3" y1 = "10" x2 = "21" y2 = "10" />
+              <line x1 = "8" y1 = "14" x2 = "8" y2 = "14" />
+              <line x1 = "12" y1 = "14" x2 = "12" y2 = "14" />
+              <line x1 = "16" y1 = "14" x2 = "16" y2 = "14" />
+              <line x1 = "8" y1 = "17" x2 = "8" y2 = "17" />
+              <line x1 = "12" y1 = "17" x2 = "12" y2 = "17" />
+            </svg>
+
+            <span>Book Now</span>
+
+          </a>
+
         </div>
 
       </nav>
+
+      {/* Hero page (First block) */}
       <section className = "hero" id = "home">
+
         <div className = "hero-content">
-          <p className = "hero-label">Professional Automotive Detailing</p>
 
-          <h1>Make Your Car Look New Again.</h1>
+          <div className = "hero-text">
 
-          <p className = "hero-description">
-            Quality automotive detailing with the care your vehicle deserves.
-          </p>
+            <p className = "hero-label">
+              <span className = "hero-line"></span>
+              ✦ Professional Automotive Detailing
+            </p>
 
-          <a href = "#booking" className = "book-button">
-            Book a Detail
-          </a>
+            <h1>
+              Make Your Car
+              <br />
+              Look <span>New Again.</span>
+            </h1>
+
+            <p className = "hero-description">
+              Quality automotive detailing with
+              <br />
+              the care your vehicle deserves.
+            </p>
+            {/* Custom booking button */}
+            <a className = "hero-button" href = "#booking">
+              <svg
+                className = "hero-calendar-icon"
+                viewBox = "0 0 24 24"
+                fill = "none"
+                stroke = "currentColor"
+                strokeWidth = "2"
+              >
+                <rect x = "3" y = "5" width = "18" height = "16" rx = "2" />
+                <line x1 = "16" y1 = "3" x2 = "16" y2 = "7" />
+                <line x1 = "8" y1 = "3" x2 = "8" y2 = "7" />
+                <line x1 = "3" y1 = "10" x2 = "21" y2 = "10" />
+              </svg>
+
+              Book a Detail
+            </a>
+            {/* Three benefits on the hero page */}
+            <div className = "hero-benefits">
+
+              <div className = "hero-benefit">
+                <span className = "benefit-icon">✦</span>
+                <p>Premium<br />Products</p>
+              </div>
+
+              <div className = "hero-divider"></div>
+
+              <div className = "hero-benefit">
+                <span className = "benefit-icon">✓</span>
+                <p>Trusted<br />Professionals</p>
+              </div>
+
+              <div className = "hero-divider"></div>
+
+              <div className = "hero-benefit">
+                <span className = "benefit-icon">★</span>
+                <p>Satisfaction<br />Guaranteed</p>
+              </div>
+
+            </div>
+
+          </div>
+
+          <div className = "hero-image">
+
+            <img src = {heroCar} alt = "Professionally detailed sports car" />
+          </div>
+
         </div>
+
       </section>
+
+      {/* Service Section (Second block) */}
       <section className = "services" id = "services">
 
         <div className = "services-header">
-          <p className = "section-label">Our Services</p>
+          <div className = "services-label">
+
+            <span className = "services-label-line"></span>
+            <span className = "services-star">✦</span>
+
+            <p className = "section-label">
+              Our Services
+            </p>
+
+            <span className = "services-star">✦</span>
+            <span className = "services-label-line"></span>
+
+          </div>
           <h2>Choose Your Detail</h2>
           <p>
             Select the service that's right for your vehicle.
@@ -484,6 +723,14 @@ function App() {
           {services.map(service => {
             const servicePrice = prices.find(price => price.service_id === service.service_id && price.vehicle_type === selectedVehicle)
 
+            if (!servicePrice) {
+              return null
+            }
+
+            if (servicePrice.duration_minutes === null) {
+              return null
+            }
+
             let priceDisplay
 
             if (servicePrice) {
@@ -492,22 +739,67 @@ function App() {
               priceDisplay = "Price unavailable"
             }
 
+            let cardDurationDisplay = "Duration unavailable"
+
+              if (servicePrice && servicePrice.duration_minutes !== null) {
+
+                const totalMinutes = servicePrice.duration_minutes
+                const hours = Math.floor(totalMinutes / 60)
+                const minutes = totalMinutes % 60
+
+                if (hours > 0 && minutes > 0) {
+                  cardDurationDisplay = `${hours} hr ${minutes} min`
+                } else if (hours > 0) {
+                  cardDurationDisplay = `${hours} hr`
+                } else {
+                  cardDurationDisplay = `${minutes} min`
+                }
+              }
+
             return (
               <div className = "service-card" key = {service.service_id}>
 
+                <div className = "service-icon">
+                  {getServiceIcon(service.name)}
+                </div>
+
                 <h3>{service.name}</h3>
 
-                <p>{service.description}</p>
+                <div className = "service-title-line"></div>
 
-                <p>
-                  Duration: {service.duration_minutes} minutes
+                <p className = "service-description">
+                  {service.description}
+                </p>
+
+                <p className = "service-duration">
+
+                  <svg
+                    className = "duration-icon"
+                    viewBox = "0 0 24 24"
+                    fill = "none"
+                    stroke = "currentColor"
+                    strokeWidth = "2"
+                    strokeLinecap = "round"
+                    strokeLinejoin = "round"
+                  >
+                    <circle cx = "12" cy = "12" r = "9" />
+                    <path d = "M12 7V12L15 14" />
+                  </svg>
+
+                  <span>
+                    Duration: {cardDurationDisplay}
+                  </span>
+
                 </p>
 
                 <p className = "service-price">
                   {priceDisplay}
                 </p>
 
-                <a href = "#booking">
+                <a
+                  className = "service-book-button"
+                  href = "#booking"
+                >
                   Book Now
                 </a>
 
@@ -787,6 +1079,69 @@ function App() {
         )}
 
       </section>
+
+      <section className = "contact" id = "contact">
+
+        <div className = "contact-content">
+
+          <p className = "section-label">
+            Get In Touch
+          </p>
+
+          <h2>
+            Ready to Get Your Vehicle Detailed?
+          </h2>
+
+          <p className = "contact-description">
+            Have questions about a service or need help booking?
+            Get in touch with Murph Detail.
+          </p>
+
+          <div className = "contact-buttons">
+
+            <a href = "tel:0000000000">
+              Call Us
+            </a>
+
+            <a href = "sms:0000000000">
+              Text Us
+            </a>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <footer className = "footer">
+
+        <div className = "footer-content">
+
+          <div className = "footer-brand">
+            <img
+              src = {murphLogo}
+              alt = "Murph Detail"
+            />
+
+            <p>
+              Professional automotive detailing.
+            </p>
+          </div>
+
+          <div className = "footer-links">
+            <a href = "#home">Home</a>
+            <a href = "#services">Services</a>
+            <a href = "#booking">Book Now</a>
+            <a href = "#contact">Contact</a>
+          </div>
+
+        </div>
+
+        <div className = "footer-bottom">
+          <p>© 2026 Murph Detail. All rights reserved.</p>
+        </div>
+
+      </footer>
 
     </div>
   )
