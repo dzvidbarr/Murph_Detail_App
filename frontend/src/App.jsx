@@ -814,16 +814,57 @@ function App() {
       <section className = "booking" id = "booking">
 
         <div className = "booking-header">
-          <p className = "section-label">Book Online</p>
+
+          <div className = "booking-label">
+
+            <span className = "booking-label-line"></span>
+
+            <span className = "booking-star">✦</span>
+
+            <p className = "section-label">
+              Book Online
+            </p>
+
+            <span className = "booking-star">✦</span>
+
+            <span className = "booking-label-line"></span>
+
+          </div>
+
           <h2>Book Your Detail</h2>
-          <p>
+
+          <p className = "booking-description">
             Enter your information below to get started.
           </p>
+
         </div>
 
         <div className = "booking-form">
 
-          <h3>Your Information</h3>
+          <div className = "information-header">
+
+            <div className = "information-icon">
+
+              <svg
+                viewBox = "0 0 24 24"
+                fill = "none"
+                stroke = "currentColor"
+                strokeWidth = "1.8"
+                strokeLinecap = "round"
+                strokeLinejoin = "round"
+              >
+                <circle cx = "12" cy = "8" r = "3.5" />
+                <path d = "M5.5 20C5.5 16.4 8.4 13.5 12 13.5C15.6 13.5 18.5 16.4 18.5 20" />
+              </svg>
+
+            </div>
+
+            <div className = "information-title">
+              <h3>Your Information</h3>
+              <span></span>
+            </div>
+
+          </div>
 
           <div className = "form-row">
 
@@ -853,9 +894,31 @@ function App() {
 
           </div>
 
-        </div>
+        
 
-        <h3>Vehicle Type</h3>
+        <div className = "booking-option-header">
+
+          <div className = "booking-option-icon">
+
+            <svg
+              viewBox = "0 0 24 24"
+              fill = "none"
+              stroke = "currentColor"
+              strokeWidth = "1.8"
+              strokeLinecap = "round"
+              strokeLinejoin = "round"
+            >
+              <path d = "M5 11L7 7H17L19 11" />
+              <path d = "M4 11H20C21.1 11 22 11.9 22 13V17H19V19H17V17H7V19H5V17H2V13C2 11.9 2.9 11 4 11Z" />
+              <circle cx = "6.5" cy = "14" r = "1" />
+              <circle cx = "17.5" cy = "14" r = "1" />
+            </svg>
+
+          </div>
+
+          <h3>Vehicle Type</h3>
+
+        </div>
 
         <div className = "booking-vehicle-selector">
 
@@ -864,7 +927,24 @@ function App() {
             className = {sedanClass}
             onClick = {() => setSelectedVehicle("Sedan")}
           >
-            Sedan
+
+            <svg
+              className = "vehicle-icon"
+              viewBox = "0 0 24 24"
+              fill = "none"
+              stroke = "currentColor"
+              strokeWidth = "1.8"
+              strokeLinecap = "round"
+              strokeLinejoin = "round"
+            >
+              <path d = "M5 11L7 7H16L19 11" />
+              <path d = "M4 11H20C21.1 11 22 11.9 22 13V17H19V19H17V17H7V19H5V17H2V13C2 11.9 2.9 11 4 11Z" />
+              <circle cx = "6.5" cy = "14" r = "1" />
+              <circle cx = "17.5" cy = "14" r = "1" />
+            </svg>
+
+            <span>Sedan</span>
+
           </button>
 
           <button
@@ -872,7 +952,26 @@ function App() {
             className = {suvClass}
             onClick = {() => setSelectedVehicle("SUV")}
           >
-            SUV
+
+            <svg
+              className = "vehicle-icon"
+              viewBox = "0 0 24 24"
+              fill = "none"
+              stroke = "currentColor"
+              strokeWidth = "1.8"
+              strokeLinecap = "round"
+              strokeLinejoin = "round"
+            >
+              <path d = "M4 11L6 6H17L20 11" />
+              <path d = "M3 11H21V17H19V19H16V17H8V19H5V17H3V11Z" />
+              <path d = "M8 6V11" />
+              <path d = "M16 6V11" />
+              <circle cx = "6.5" cy = "14" r = "1" />
+              <circle cx = "17.5" cy = "14" r = "1" />
+            </svg>
+
+            <span>SUV</span>
+
           </button>
 
           <button
@@ -880,12 +979,49 @@ function App() {
             className = {truckClass}
             onClick = {() => setSelectedVehicle("Truck")}
           >
-            Truck
+
+            <svg
+              className = "vehicle-icon"
+              viewBox = "0 0 24 24"
+              fill = "none"
+              stroke = "currentColor"
+              strokeWidth = "1.8"
+              strokeLinecap = "round"
+              strokeLinejoin = "round"
+            >
+              <path d = "M3 7H13V16H3Z" />
+              <path d = "M13 10H18L21 13V16H13Z" />
+              <circle cx = "7" cy = "17" r = "2" />
+              <circle cx = "18" cy = "17" r = "2" />
+            </svg>
+
+            <span>Truck</span>
+
           </button>
 
         </div>
 
-        <h3>Select Service</h3>
+        <div className = "booking-option-header">
+
+          <div className = "booking-option-icon">
+
+            <svg
+              viewBox = "0 0 24 24"
+              fill = "none"
+              stroke = "currentColor"
+              strokeWidth = "1.8"
+              strokeLinecap = "round"
+              strokeLinejoin = "round"
+            >
+              <path d = "M12 3L13.2 7.8L18 9L13.2 10.2L12 15L10.8 10.2L6 9L10.8 7.8L12 3Z" />
+              <path d = "M18.5 14L19.2 16.8L22 17.5L19.2 18.2L18.5 21L17.8 18.2L15 17.5L17.8 16.8L18.5 14Z" />
+            </svg>
+
+          </div>
+
+          <h3>Select Service</h3>
+
+        </div>
 
         <div className = "booking-service-selector">
 
@@ -916,116 +1052,219 @@ function App() {
               key = {service.service_id}
               onClick = {() => setSelectedService(service.service_id)}
             >
-              {service.name}
+
+              <span className = "booking-service-icon">
+                {getServiceIcon(service.name)}
+              </span>
+
+              <span className = "booking-service-name">
+                {service.name}
+              </span>
+
             </button>
           )
         })}
 
         </div>
 
-        <h3>Select Date</h3>
+        <div className = "booking-schedule">
 
-        <div className = "form-group">
-          <label>Appointment Date</label>
+          <div className = "booking-date-section">
 
-          <input
-            type = "date"
-            value = {appointmentDate}
-            min = {today}
-            onChange = {(event) => setAppointmentDate(event.target.value)}
-          />
-        </div>
+            <div className = "schedule-header">
 
-        <h3>Select Time</h3>
+              <div className = "schedule-icon">
+                <svg
+                  viewBox = "0 0 24 24"
+                  fill = "none"
+                  stroke = "currentColor"
+                  strokeWidth = "1.8"
+                  strokeLinecap = "round"
+                  strokeLinejoin = "round"
+                >
+                  <rect x = "3" y = "5" width = "18" height = "16" rx = "2" />
+                  <line x1 = "16" y1 = "3" x2 = "16" y2 = "7" />
+                  <line x1 = "8" y1 = "3" x2 = "8" y2 = "7" />
+                  <line x1 = "3" y1 = "10" x2 = "21" y2 = "10" />
+                </svg>
+              </div>
 
-        <div className = "time-selector">
+              <h3>Select Date</h3>
 
-          {appointmentTimes.map(time => {
+            </div>
 
-            const timeParts = time.split(":")
+            <div className = "form-group">
+              <label>Appointment Date</label>
 
-            const startHour = Number(timeParts[0])
-            const startMinute = Number(timeParts[1])
+              <input
+                type = "date"
+                value = {appointmentDate}
+                min = {today}
+                onChange = {(event) => setAppointmentDate(event.target.value)}
+              />
+            </div>
 
-            const newStartMinutes = (startHour * 60) + startMinute
-            const newEndMinutes = newStartMinutes + selectedDuration
+          </div>
 
-            let isBooked = false
+          <div className = "booking-time-section">
 
-            for (const appointment of bookedAppointments) {
+            <div className = "schedule-header">
 
-              if (
-                newStartMinutes < appointment.end_minutes &&
-                newEndMinutes > appointment.start_minutes
-              ) {
-                isBooked = true
-                break
-              }
-            }
+              <div className = "schedule-icon">
 
-            let timeClass = ""
+                <svg
+                  viewBox = "0 0 24 24"
+                  fill = "none"
+                  stroke = "currentColor"
+                  strokeWidth = "1.8"
+                  strokeLinecap = "round"
+                  strokeLinejoin = "round"
+                >
+                  <circle cx = "12" cy = "12" r = "9" />
+                  <path d = "M12 7V12L15 14" />
+                </svg>
 
-            if (selectedTime === time) {
-              timeClass = "selected"
-            }
+              </div>
 
-            if (isBooked) {
-              timeClass = "booked"
-            }
+              <h3>Select Time</h3>
 
-            return (
-              <button
-                type = "button"
-                key = {time}
-                className = {timeClass}
-                disabled = {isBooked}
-                onClick = {() => setSelectedTime(time)}
-              >
-                {formatTime(time)}
-              </button>
-            )
-          })}
+            </div>
+
+            <div className = "time-selector">
+
+              {appointmentTimes.map(time => {
+
+                const timeParts = time.split(":")
+                const startHour = Number(timeParts[0])
+                const startMinute = Number(timeParts[1])
+                const newStartMinutes = (startHour * 60) + startMinute
+                const newEndMinutes = newStartMinutes + selectedDuration
+
+                let isBooked = false
+
+                for (const appointment of bookedAppointments) {
+
+                  if (
+                    newStartMinutes < appointment.end_minutes &&
+                    newEndMinutes > appointment.start_minutes
+                  ) {
+                    isBooked = true
+                    break
+                  }
+                }
+
+                let timeClass = ""
+
+                if (selectedTime === time) {
+                  timeClass = "selected"
+                }
+
+                if (isBooked) {
+                  timeClass = "booked"
+                }
+
+                return (
+                  <button
+                    type = "button"
+                    key = {time}
+                    className = {timeClass}
+                    disabled = {isBooked}
+                    onClick = {() => setSelectedTime(time)}
+                  >
+                    {formatTime(time)}
+                  </button>
+                )
+              })}
+            </div>
+
+          </div>
 
         </div>
 
         {!bookingConfirmed && (
+
           <div className = "booking-summary">
 
-            <h3>Booking Summary</h3>
+            <div className = "summary-header">
 
-            <p>
-              <strong>Service:</strong> {serviceDisplay}
-            </p>
+              <div className = "summary-icon">
 
-            <p>
-              <strong>Vehicle:</strong> {selectedVehicle}
-            </p>
+                <svg
+                  viewBox = "0 0 24 24"
+                  fill = "none"
+                  stroke = "currentColor"
+                  strokeWidth = "1.8"
+                  strokeLinecap = "round"
+                  strokeLinejoin = "round"
+                >
+                  <path d = "M9 11L12 14L20 6" />
+                  <path d = "M20 12V19C20 20.1 19.1 21 18 21H5C3.9 21 3 20.1 3 19V6C3 4.9 3.9 4 5 4H15" />
+                </svg>
 
-            <p>
-              <strong>Price:</strong> {priceDisplay}
-            </p>
+              </div>
 
-            <p>
-              <strong>Duration:</strong> {durationDisplay}
-            </p>
+              <div className = "summary-title">
+                <h3>Booking Summary</h3>
+                <span></span>
+              </div>
 
-            <p>
-              <strong>Date:</strong> {dateDisplay}
-            </p>
+            </div>
 
-            <p>
-              <strong>Time:</strong> {timeDisplay}
-            </p>
+            <div className = "summary-content">
 
-            <button
-              type = "button"
-              className = "submit-booking"
-              onClick = {handleBooking}
-            >
-              Book Appointment
-            </button>
+              <div className = "summary-details">
+
+                <div className = "summary-item">
+                  <span>Service</span>
+                  <strong>{serviceDisplay}</strong>
+                </div>
+
+                <div className = "summary-item">
+                  <span>Vehicle</span>
+                  <strong>{selectedVehicle}</strong>
+                </div>
+
+                <div className = "summary-item">
+                  <span>Duration</span>
+                  <strong>{durationDisplay}</strong>
+                </div>
+
+                <div className = "summary-item">
+                  <span>Date</span>
+                  <strong>{dateDisplay}</strong>
+                </div>
+
+                <div className = "summary-item">
+                  <span>Time</span>
+                  <strong>{timeDisplay}</strong>
+                </div>
+
+              </div>
+
+
+              <div className = "summary-total">
+
+                <span>Total</span>
+
+                <strong>
+                  {priceDisplay}
+                </strong>
+
+                <button
+                  type = "button"
+                  className = "submit-booking"
+                  onClick = {handleBooking}
+                >
+                  Book Appointment
+                  <span>→</span>
+                </button>
+
+              </div>
+
+            </div>
 
           </div>
+
         )}
 
         {bookingConfirmed && confirmedBooking && (
@@ -1078,15 +1317,25 @@ function App() {
 
         )}
 
+      </div>
+
       </section>
 
       <section className = "contact" id = "contact">
 
         <div className = "contact-content">
 
-          <p className = "section-label">
-            Get In Touch
-          </p>
+          <div className = "contact-label">
+            <span className = "contact-label-line"></span>
+
+            <span className = "contact-star">✦</span>
+
+            <p>GET IN TOUCH</p>
+
+            <span className = "contact-star">✦</span>
+
+            <span className = "contact-label-line"></span>
+          </div>
 
           <h2>
             Ready to Get Your Vehicle Detailed?
@@ -1100,11 +1349,34 @@ function App() {
           <div className = "contact-buttons">
 
             <a href = "tel:0000000000">
-              Call Us
+              <svg
+                viewBox = "0 0 24 24"
+                fill = "none"
+                stroke = "currentColor"
+                strokeWidth = "2"
+                strokeLinecap = "round"
+                strokeLinejoin = "round"
+              >
+                <path d = "M22 16.92V19.92C22 21.02 21.1 21.92 20 21.92C10.06 21.92 2 13.86 2 3.92C2 2.82 2.9 1.92 4 1.92H7C7.55 1.92 8.05 2.15 8.41 2.52C8.77 2.89 8.97 3.4 8.95 3.95C8.87 5.14 8.66 6.3 8.31 7.4C8.15 7.9 8.27 8.45 8.64 8.82L10.1 10.28C11.39 12.55 13.27 14.43 15.54 15.72L17 14.26C17.37 13.89 17.92 13.77 18.42 13.93C19.52 14.28 20.68 14.49 21.87 14.57C22.97 14.64 22 15.82 22 16.92Z" />
+              </svg>
+
+              <span>Call Us</span>
             </a>
 
+
             <a href = "sms:0000000000">
-              Text Us
+              <svg
+                viewBox = "0 0 24 24"
+                fill = "none"
+                stroke = "currentColor"
+                strokeWidth = "2"
+                strokeLinecap = "round"
+                strokeLinejoin = "round"
+              >
+                <path d = "M21 15C21 16.1 20.1 17 19 17H8L3 21V5C3 3.9 3.9 3 5 3H19C20.1 3 21 3.9 21 5V15Z" />
+              </svg>
+
+              <span>Text Us</span>
             </a>
 
           </div>
@@ -1126,6 +1398,44 @@ function App() {
             <p>
               Professional automotive detailing.
             </p>
+
+            <div className = "footer-socials">
+
+              <a href = "#" aria-label = "Instagram">
+                <svg
+                  viewBox = "0 0 24 24"
+                  fill = "none"
+                  stroke = "currentColor"
+                  strokeWidth = "1.8"
+                  strokeLinecap = "round"
+                  strokeLinejoin = "round"
+                >
+                  <rect x = "3" y = "3" width = "18" height = "18" rx = "5" />
+                  <circle cx = "12" cy = "12" r = "4" />
+                  <circle
+                    cx = "17.5"
+                    cy = "6.5"
+                    r = "1"
+                    fill = "currentColor"
+                    stroke = "none"
+                  />
+                </svg>
+              </a>
+
+              <a href = "#" aria-label = "Facebook">
+                <svg
+                  viewBox = "0 0 24 24"
+                  fill = "none"
+                  stroke = "currentColor"
+                  strokeWidth = "1.8"
+                  strokeLinecap = "round"
+                  strokeLinejoin = "round"
+                >
+                  <path d = "M14 8H17V4H14C10.7 4 9 6 9 9V11H6V15H9V21H13V15H16L17 11H13V9C13 8.3 13.3 8 14 8Z" />
+                </svg>
+              </a>
+
+            </div>
           </div>
 
           <div className = "footer-links">
