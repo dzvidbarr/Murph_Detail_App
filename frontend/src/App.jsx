@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import murphLogo from "./assets/logo.png"
 import heroCar from "./assets/car.png"
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"
 
 function App() {
 
@@ -32,7 +33,7 @@ function App() {
   const today = new Date().toLocaleDateString("en-CA")
 
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/services')
+    fetch(`${API_URL}/services`)
       .then(response => response.json())
       .then(data => {
         setServices(data)
@@ -43,7 +44,7 @@ function App() {
   }, [])
 
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/service-prices')
+    fetch(`${API_URL}/service-prices`)
       .then(response => response.json())
       .then(data => {
         console.log("Prices from API:", data)
@@ -60,7 +61,7 @@ function App() {
       return
     }
 
-    fetch(`http://127.0.0.1:8000/availability/${appointmentDate}`)
+    fetch(`${API_URL}/availability/${appointmentDate}`)
       .then(response => response.json())
       .then(data => {
         setBookedAppointments(data.booked_appointments)
@@ -305,7 +306,7 @@ function App() {
       let customerData = null
 
       const customerLookupResponse = await fetch(
-        `http://127.0.0.1:8000/customers/email/${encodeURIComponent(email)}`
+        `${API_URL}/customers/email/${encodeURIComponent(email)}`
       )
 
       if (customerLookupResponse.ok) {
@@ -317,7 +318,7 @@ function App() {
       } else if (customerLookupResponse.status === 404) {
 
         const customerResponse = await fetch(
-          "http://127.0.0.1:8000/customers",
+          `${API_URL}/customers`,
           {
             method: "POST",
 
@@ -351,7 +352,7 @@ function App() {
       }
 
       const vehicleResponse = await fetch(
-        "http://127.0.0.1:8000/vehicles",
+        `${API_URL}/vehicles`,
         {
           method: "POST",
 
@@ -371,7 +372,7 @@ function App() {
       console.log("Vehicle created:", vehicleData)
 
       const appointmentResponse = await fetch(
-        "http://127.0.0.1:8000/appointments",
+        `${API_URL}/appointments`,
         {
           method: "POST",
 
