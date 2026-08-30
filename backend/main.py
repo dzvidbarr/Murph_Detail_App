@@ -213,7 +213,8 @@ def create_service_price(
     new_price = models.ServicePrice(
         service_id = service_price.service_id,
         vehicle_type = service_price.vehicle_type,
-        price = service_price.price
+        price = service_price.price,
+        duration_minutes = service_price.duration_minutes
     )
 
     db.add(new_price)
@@ -221,6 +222,31 @@ def create_service_price(
     db.refresh(new_price)
 
     return new_price
+
+@app.patch("/service-prices/{service_price_id}", response_model = schemas.ServicePriceResponse)
+def update_service_price_duration(
+    service_price_id: int,
+    duration_minutes: int,
+    db: Session = Depends(get_db)
+):
+    service_price = (
+        db.query(models.ServicePrice)
+        .filter(models.ServicePrice.service_price_id == service_price_id)
+        .first()
+    )
+
+    if not service_price:
+        raise HTTPException(
+            status_code = 404,
+            detail = "Service price not found"
+        )
+
+    service_price.duration_minutes = duration_minutes
+
+    db.commit()
+    db.refresh(service_price)
+
+    return service_price
 
 @app.get("/service-prices", response_model = list[schemas.ServicePriceResponse])
 def get_service_prices(db: Session = Depends(get_db)):

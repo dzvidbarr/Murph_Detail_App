@@ -28,6 +28,7 @@ class ServicePriceCreate(BaseModel):
     service_id: int
     vehicle_type: Literal["Sedan", "SUV", "Truck"]
     price: Decimal = Field(ge = 0)
+    duration_minutes: int | None = None
 
 # Appointment class
 class AppointmentCreate(BaseModel):
