@@ -24,7 +24,8 @@ app = FastAPI()
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins = ["http://localhost:5173", "https://murph-detail-oevfe9s9d-healing-orange.vercel.app"],
+    allow_origins = ["http://localhost:5173"],
+    allow_origin_regex = r"https://murph-detail-[a-z0-9]+-healing-orange\.vercel\.app",
     allow_credentials = True,
     allow_methods = ["*"],
     allow_headers = ["*"],
