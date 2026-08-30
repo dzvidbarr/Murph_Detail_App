@@ -8,6 +8,11 @@ from backend import models, schemas
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import date
 
+from . import models
+from .database import engine
+
+models.Base.metadata.create_all(bind=engine)
+
 # API Create things and Get things 
 # Below is to start FastAPI server
 # python -m uvicorn backend.main:app --reload
