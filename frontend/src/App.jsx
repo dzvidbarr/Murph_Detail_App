@@ -28,8 +28,11 @@ function App() {
   // Find the selected service
   const bookingService = services.find(service => service.service_id === selectedService)
 
+  // Loading Screen for services
+  const [servicesLoading, setServicesLoading] = useState(true)
+  const [servicesLoaded, setServicesLoaded] = useState(false)
+  const [pricesLoaded, setPricesLoaded] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-
   const today = new Date().toLocaleDateString("en-CA")
 
   useEffect(() => {
@@ -37,6 +40,7 @@ function App() {
       .then(response => response.json())
       .then(data => {
         setServices(data)
+        setServicesLoaded(true)
       })
       .catch(error => {
         console.error('Error loading services:', error)
@@ -49,11 +53,18 @@ function App() {
       .then(data => {
         console.log("Prices from API:", data)
         setPrices(data)
+        setPricesLoaded(true)
       })
       .catch(error => {
         console.error('Error loading prices:', error)
       })
   }, [])
+
+  useEffect(() => {
+    if (servicesLoaded && pricesLoaded) {
+      setServicesLoading(false)
+    }
+  }, [servicesLoaded, pricesLoaded])
 
   useEffect(() => {
 
@@ -720,8 +731,15 @@ function App() {
         </div>
 
         <div className = "service-cards">
+          
+          {servicesLoading && (
+            <div className = "services-loading">
+              <div className = "services-spinner"></div>
+              <p>Loading Services...</p>
+            </div>
+          )}
 
-          {services.map(service => {
+          {!servicesLoading && services.map(service => {
             const servicePrice = prices.find(price => price.service_id === service.service_id && price.vehicle_type === selectedVehicle)
 
             if (!servicePrice) {
