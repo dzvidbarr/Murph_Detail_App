@@ -245,7 +245,30 @@ def create_service_price(
     db.commit()
     db.refresh(new_price)
 
-    return new_price
+
+@app.delete("/service-prices/{service_price_id}")
+def delete_service_price(
+    service_price_id: int,
+    db: Session = Depends(get_db)
+):
+    service_price = (
+        db.query(models.ServicePrice)
+        .filter(models.ServicePrice.service_price_id == service_price_id)
+        .first()
+    )
+
+    if not service_price:
+        raise HTTPException(
+            status_code = 404,
+            detail = "Service price not found"
+        )
+
+    db.delete(service_price)
+    db.commit()
+
+    return {
+        "message": "Service price deleted successfully"
+    }
 
 @app.patch("/service-prices/{service_price_id}", response_model = schemas.ServicePriceResponse)
 def update_service_price_duration(
