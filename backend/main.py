@@ -168,6 +168,30 @@ def create_service(
 
     return new_service
 
+@app.delete("/services/{service_id}")
+def delete_service(
+    service_id: int,
+    db: Session = Depends(get_db)
+):
+    service = (
+        db.query(models.Service)
+        .filter(models.Service.service_id == service_id)
+        .first()
+    )
+
+    if not service:
+        raise HTTPException(
+            status_code = 404,
+            detail = "Service not found"
+        )
+
+    db.delete(service)
+    db.commit()
+
+    return {
+        "message": "Service deleted successfully"
+    }
+
 @app.get("/services", response_model = list[schemas.ServiceResponse])
 def get_services(db: Session = Depends(get_db)):
     return db.query(models.Service).all()
