@@ -32,6 +32,7 @@ function App() {
   const [servicesLoading, setServicesLoading] = useState(true)
   const [servicesLoaded, setServicesLoaded] = useState(false)
   const [pricesLoaded, setPricesLoaded] = useState(false)
+  const [servicesError, setServicesError] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const today = new Date().toLocaleDateString("en-CA")
 
@@ -44,6 +45,8 @@ function App() {
       })
       .catch(error => {
         console.error('Error loading services:', error)
+        setServicesError(true)
+        setServicesLoading(false)
       })
   }, [])
 
@@ -57,6 +60,8 @@ function App() {
       })
       .catch(error => {
         console.error('Error loading prices:', error)
+        setServicesError(true)
+        setServicesLoading(false)
       })
   }, [])
 
@@ -739,7 +744,13 @@ function App() {
             </div>
           )}
 
-          {!servicesLoading && services.map(service => {
+          {servicesError && (
+            <div className = "services-error">
+              <p>Unable to load services. Please try again.</p>
+            </div>
+          )}
+
+          {!servicesLoading && !servicesError && services.map(service => {
             const servicePrice = prices.find(price => price.service_id === service.service_id && price.vehicle_type === selectedVehicle)
 
             if (!servicePrice) {

@@ -303,6 +303,23 @@ body {
   }
 }
 
+.services-error {
+  width: 100%;
+  min-height: 300px;
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.services-error p {
+  margin: 0;
+  font-size: 16px;
+  letter-spacing: 1px;
+  color: var(--brand-cream);
+}
+
 .services-header {
   text-align: center;
   margin-bottom: 30px;
