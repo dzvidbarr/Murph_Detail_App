@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Depends, HTTPException
+import os
+from fastapi import FastAPI, Depends, HTTPException, Header
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
@@ -20,6 +21,24 @@ models.Base.metadata.create_all(bind=engine)
 
 # Creates the API application 
 app = FastAPI()
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
+ADMIN_TOKEN = os.getenv("ADMIN_TOKEN")
+
+def verify_admin_token(x_admin_token: str = Header(None)):
+
+    if not ADMIN_TOKEN:
+        raise HTTPException(
+            status_code = 500,
+            detail = "Admin token is not configured"
+        )
+
+    if x_admin_token != ADMIN_TOKEN:
+        raise HTTPException(
+            status_code = 401,
+            detail = "Unauthorized"
+        )
+
+    return True
 
 # CORS
 app.add_middleware(
@@ -77,7 +96,7 @@ def create_customer(
     return new_customer
 
 @app.get("/customers", response_model = list[schemas.CustomerResponse])
-def get_customers(db: Session = Depends(get_db)):
+def get_customers(db: Session = Depends(get_db), admin_verified: bool = Depends(verify_admin_token)):
     customers = db.query(models.Customer).all()
     return customers
 
@@ -129,7 +148,7 @@ def create_vehicle(
     return new_vehicle
 
 @app.get("/vehicles", response_model = list[schemas.VehicleResponse])
-def get_vehicles(db: Session = Depends(get_db)):
+def get_vehicles(db: Session = Depends(get_db), admin_verified: bool = Depends(verify_admin_token)):
     vehicles = db.query(models.Vehicle).all()
     return vehicles
 
@@ -469,7 +488,7 @@ def create_appointment(
     return new_appointment
 
 @app.get("/appointments", response_model = list[schemas.AppointmentResponse])
-def get_appointments(db: Session = Depends(get_db)):
+def get_appointments(db: Session = Depends(get_db), admin_vevrified: bool = Depends(verify_admin_token)):
     return db.query(models.Appointment).all()
 
 @app.get("/appointments/{appointment_id}", response_model = schemas.AppointmentResponse)
@@ -495,7 +514,7 @@ def get_appointment(
 def update_appointment_status(
     appointment_id: int,
     status_update: schemas.AppointmentStatusUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db), admin_verified: bool = Depends(verify_admin_token)
 ):
     appointment = (
         db.query(models.Appointment)
@@ -574,4 +593,30 @@ def get_availability(
     return {
         "date": appointment_date,
         "booked_appointments": booked_appointments
+    }
+
+@app.post("/admin/login")
+def admin_login(login: schemas.AdminLogin):
+
+    if not ADMIN_PASSWORD:
+        raise HTTPException(
+            status_code = 500,
+            detail = "Admin password is not configured"
+        )
+
+    if not ADMIN_TOKEN:
+        raise HTTPException(
+            status_code = 500,
+            detail = "Admin token is not configured"
+        )
+
+    if login.password != ADMIN_PASSWORD:
+        raise HTTPException(
+            status_code = 401,
+            detail = "Incorrect password"
+        )
+
+    return {
+    "message": "Login successful",
+    "token": ADMIN_TOKEN
     }

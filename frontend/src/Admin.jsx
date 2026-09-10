@@ -9,11 +9,21 @@ function Admin() {
     const [services, setServices] = useState([])
     const [servicePrices, setServicePrices] = useState([])
     const [appointmentView, setAppointmentView] = useState("upcoming")
+    const [adminLoading, setAdminLoading] = useState(true)
+    const [adminError, setAdminError] = useState(false)
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [adminPassword, setAdminPassword] = useState("")
+    const [loginError, setLoginError] = useState("")
+    const [adminToken, setAdminToken] = useState("")
     const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"
 
     useEffect(() => {
 
-        fetch(`${API_URL}/appointments`)
+        if (!adminToken) {
+            return
+        }
+
+        fetch(`${API_URL}/appointments`, {headers: {"x-admin-token": adminToken}})
             .then(response => response.json())
             .then(data => {
 
@@ -31,38 +41,57 @@ function Admin() {
                 })
 
                 setAppointments(sortedAppointments)
+                setAdminLoading(false)
             })
             .catch(error => {
                 console.error("Error loading appointments:", error)
+                setAdminError(true)
+                setAdminLoading(false)
             })
 
-    }, [])
+    }, [adminToken])
 
     useEffect(() => {
 
-        fetch(`${API_URL}/customers`)
+        if (!adminToken) {
+            return
+        }
+
+        fetch(`${API_URL}/customers`, {
+            headers: {
+                "x-admin-token": adminToken
+            }
+        })
             .then(response => response.json())
             .then(data => {
-            setCustomers(data)
+                setCustomers(data)
             })
             .catch(error => {
-            console.error("Error loading customers:", error)
+                console.error("Error loading customers:", error)
             })
 
-        }, [])
+    }, [adminToken])
 
-        useEffect(() => {
+    useEffect(() => {
 
-            fetch(`${API_URL}/vehicles`)
-                .then(response => response.json())
-                .then(data => {
+        if (!adminToken) {
+            return
+        }
+
+        fetch(`${API_URL}/vehicles`, {
+            headers: {
+                "x-admin-token": adminToken
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
                 setVehicles(data)
-                })
-                .catch(error => {
+            })
+            .catch(error => {
                 console.error("Error loading vehicles:", error)
-                })
+            })
 
-        }, [])
+    }, [adminToken])
 
         useEffect(() => {
 
@@ -90,6 +119,42 @@ function Admin() {
 
         }, [])
 
+        const handleAdminLogin = async () => {
+            setLoginError("")
+
+            try {
+                const response = await fetch(`${API_URL}/admin/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    password: adminPassword
+                })
+                })
+
+                if (response.status === 401) {
+                    setLoginError("Incorrect password")
+                    return
+                }
+
+                if (!response.ok) {
+                    setLoginError("Server error. Please try again.")
+                    return
+                }
+
+                const data = await response.json()
+
+                setAdminToken(data.token)
+                setIsLoggedIn(true)
+                setAdminPassword("")
+
+            } catch (error) {
+                console.error("Admin login error:", error)
+                setLoginError("Unable to connect to the server")
+            }
+        }
+
         const updateAppointmentStatus = async (appointmentId, newStatus) => {
 
             try {
@@ -99,7 +164,8 @@ function Admin() {
                 {
                     method: "PATCH",
                     headers: {
-                    "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        "x-admin-token": adminToken
                     },
                     body: JSON.stringify({
                     status: newStatus
@@ -167,6 +233,45 @@ function Admin() {
     historyButtonClass = "appointment-view-button active"
     }
 
+    if (!isLoggedIn) {
+        return (
+            <div className = "admin-login-page">
+
+            <div className = "admin-login-card">
+
+                <h1>Murph Detail</h1>
+                <p>Admin Login</p>
+
+                <input
+                type = "password"
+                placeholder = "Enter admin password"
+                value = {adminPassword}
+                onChange = {event => {
+                    setAdminPassword(event.target.value)
+                }}
+                onKeyDown = {event => {
+                    if (event.key === "Enter") {
+                        handleAdminLogin()
+                    }
+                }}
+                />
+
+                <button onClick = {handleAdminLogin}>
+                Login
+                </button>
+
+                {loginError && (
+                <p className = "admin-login-error">
+                    {loginError}
+                </p>
+                )}
+
+            </div>
+
+            </div>
+        )
+    }
+
     return (
         <div className = "admin-page">
             <div className = "admin-header">
@@ -176,8 +281,29 @@ function Admin() {
                     <p>Admin Dashboard</p>
                 </div>
 
-                <div className = "admin-header-badge">
-                    ADMIN
+                <div className = "admin-header-actions">
+
+                    <div className = "admin-header-badge">
+                        ADMIN
+                    </div>
+
+                    <button
+                        className = "admin-logout-button"
+                        onClick = {() => {
+                            setAdminToken("")
+                            setIsLoggedIn(false)
+                            setAppointments([])
+                            setCustomers([])
+                            setVehicles([])
+                            setServices([])
+                            setServicePrices([])
+                            setAdminLoading(true)
+                            setAdminError(false)
+                        }}
+                    >
+                        Logout
+                    </button>
+
                 </div>
 
             </div>
@@ -215,6 +341,18 @@ function Admin() {
             <div className = "admin-appointments">
 
                 <h2>Appointments</h2>
+                {adminLoading && (
+                    <div className = "admin-loading">
+                        <div className = "admin-spinner"></div>
+                        <p>Loading appointments...</p>
+                    </div>
+                    )}
+
+                    {adminError && (
+                    <div className = "admin-error">
+                        <p>Unable to load appointments. Please try again.</p>
+                    </div>
+                )}
                 <div className = "appointment-view-buttons">
 
                     <button
@@ -232,143 +370,144 @@ function Admin() {
                     </button>
 
                     </div>
+                {!adminLoading && !adminError && (
+                    <table className = "appointments-table">
 
-                <table className = "appointments-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Customer</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                            <th>Vehicle</th>
+                            <th>Service</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                        </tr>
+                        </thead>
 
-                    <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Customer</th>
-                        <th>Phone</th>
-                        <th>Email</th>
-                        <th>Vehicle</th>
-                        <th>Service</th>
-                        <th>Price</th>
-                        <th>Status</th>
-                    </tr>
-                    </thead>
+                        <tbody>
 
-                    <tbody>
+                            {displayedAppointments.map(appointment => {
 
-                        {displayedAppointments.map(appointment => {
+                                const appointmentDate = new Date(
+                                `${appointment.appointment_date}T00:00:00`
+                                )
 
-                            const appointmentDate = new Date(
-                            `${appointment.appointment_date}T00:00:00`
-                            )
+                                const dateDisplay = appointmentDate.toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric"
+                                })
 
-                            const dateDisplay = appointmentDate.toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric"
-                            })
+                                const timeParts = appointment.appointment_time.split(":")
 
-                            const timeParts = appointment.appointment_time.split(":")
+                                let hour = Number(timeParts[0])
+                                const minute = timeParts[1]
 
-                            let hour = Number(timeParts[0])
-                            const minute = timeParts[1]
+                                let period = "AM"
 
-                            let period = "AM"
+                                if (hour >= 12) {
+                                period = "PM"
+                                }
 
-                            if (hour >= 12) {
-                            period = "PM"
-                            }
+                                if (hour > 12) {
+                                hour = hour - 12
+                                }
 
-                            if (hour > 12) {
-                            hour = hour - 12
-                            }
+                                if (hour === 0) {
+                                hour = 12
+                                }
 
-                            if (hour === 0) {
-                            hour = 12
-                            }
+                                const timeDisplay = `${hour}:${minute} ${period}`
 
-                            const timeDisplay = `${hour}:${minute} ${period}`
+                                const customer = customers.find(
+                                customer => customer.customer_id === appointment.customer_id
+                                )
 
-                            const customer = customers.find(
-                            customer => customer.customer_id === appointment.customer_id
-                            )
+                                let customerName = "Unknown Customer"
 
-                            let customerName = "Unknown Customer"
+                                if (customer) {
+                                customerName = `${customer.first_name} ${customer.last_name}`
+                                }
 
-                            if (customer) {
-                            customerName = `${customer.first_name} ${customer.last_name}`
-                            }
+                                let customerPhone = "N/A"
+                                let customerEmail = "N/A"
 
-                            let customerPhone = "N/A"
-                            let customerEmail = "N/A"
+                                if (customer) {
+                                customerPhone = customer.phone
+                                customerEmail = customer.email
+                                }
 
-                            if (customer) {
-                            customerPhone = customer.phone
-                            customerEmail = customer.email
-                            }
+                                const vehicle = vehicles.find(
+                                vehicle => vehicle.vehicle_id === appointment.vehicle_id
+                                )
 
-                            const vehicle = vehicles.find(
-                            vehicle => vehicle.vehicle_id === appointment.vehicle_id
-                            )
+                                let vehicleType = "Unknown Vehicle"
 
-                            let vehicleType = "Unknown Vehicle"
+                                if (vehicle) {
+                                vehicleType = vehicle.vehicle_type
+                                }
 
-                            if (vehicle) {
-                            vehicleType = vehicle.vehicle_type
-                            }
+                                const service = services.find(
+                                service => service.service_id === appointment.service_id
+                                )
 
-                            const service = services.find(
-                            service => service.service_id === appointment.service_id
-                            )
+                                let serviceName = "Unknown Service"
 
-                            let serviceName = "Unknown Service"
+                                if (service) {
+                                serviceName = service.name
+                                }
 
-                            if (service) {
-                            serviceName = service.name
-                            }
+                                const servicePrice = servicePrices.find(
+                                price =>
+                                    price.service_id === appointment.service_id &&
+                                    price.vehicle_type === vehicleType
+                                )
 
-                            const servicePrice = servicePrices.find(
-                            price =>
-                                price.service_id === appointment.service_id &&
-                                price.vehicle_type === vehicleType
-                            )
+                                let priceDisplay = "N/A"
 
-                            let priceDisplay = "N/A"
+                                if (servicePrice) {
+                                priceDisplay = `$${Number(servicePrice.price).toFixed(2)}`
+                                }
 
-                            if (servicePrice) {
-                            priceDisplay = `$${Number(servicePrice.price).toFixed(2)}`
-                            }
+                                return (
+                                <tr key = {appointment.appointment_id}>
+                                    <td>{appointment.appointment_id}</td>
+                                    <td>{dateDisplay}</td>
+                                    <td>{timeDisplay}</td>
+                                    <td>{customerName}</td>
+                                    <td>{customerPhone}</td>
+                                    <td>{customerEmail}</td>
+                                    <td>{vehicleType}</td>
+                                    <td>{serviceName}</td>
+                                    <td>{priceDisplay}</td>
+                                    <td>
+                                        <select
+                                            className = "admin-status-select"
+                                            value = {appointment.status}
+                                            onChange = {event => {
+                                            updateAppointmentStatus(
+                                                appointment.appointment_id,
+                                                event.target.value
+                                            )
+                                            }}
+                                        >
+                                            <option value = "Pending">Pending</option>
+                                            <option value = "Completed">Completed</option>
+                                            <option value = "Cancelled">Cancelled</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                )
+                            })}
 
-                            return (
-                            <tr key = {appointment.appointment_id}>
-                                <td>{appointment.appointment_id}</td>
-                                <td>{dateDisplay}</td>
-                                <td>{timeDisplay}</td>
-                                <td>{customerName}</td>
-                                <td>{customerPhone}</td>
-                                <td>{customerEmail}</td>
-                                <td>{vehicleType}</td>
-                                <td>{serviceName}</td>
-                                <td>{priceDisplay}</td>
-                                <td>
-                                    <select
-                                        className = "admin-status-select"
-                                        value = {appointment.status}
-                                        onChange = {event => {
-                                        updateAppointmentStatus(
-                                            appointment.appointment_id,
-                                            event.target.value
-                                        )
-                                        }}
-                                    >
-                                        <option value = "Pending">Pending</option>
-                                        <option value = "Completed">Completed</option>
-                                        <option value = "Cancelled">Cancelled</option>
-                                    </select>
-                                </td>
-                            </tr>
-                            )
-                        })}
+                            </tbody>
 
-                        </tbody>
-
-                </table>
+                    </table>
+                )}
 
                 </div>        
         </div>
