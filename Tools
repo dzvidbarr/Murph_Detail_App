@@ -9,3 +9,16 @@ git commit -m "commit message"
 
 # Push to github
 git push 
+
+# Create react
+npm create vite@latest frontend -- --template react
+
+# Reload swagger
+python -m uvicorn backend.main:app --reload
+
+# Load react
+cd frontend
+npm run dev
+
+# To get to the PSQL database 
+psql -U postgres -d murph_detail

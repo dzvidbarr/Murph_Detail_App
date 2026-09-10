@@ -1168,15 +1168,22 @@ function App() {
                 const newStartMinutes = (startHour * 60) + startMinute
                 const newEndMinutes = newStartMinutes + selectedDuration
                 const now = new Date()
-                const currentYear = now.getFullYear()
-                const currentMonth = String(now.getMonth() + 1).padStart(2, "0")
-                const currentDay = String(now.getDate()).padStart(2, "0")
-                const currentDate = `${currentYear}-${currentMonth}-${currentDay}`
-                const currentMinutes = (now.getHours() * 60) + now.getMinutes()
+                const dateParts = appointmentDate.split("-")
+                const selectedYear = Number(dateParts[0])
+                const selectedMonth = Number(dateParts[1]) - 1
+                const selectedDay = Number(dateParts[2])
+                const appointmentDateTime = new Date(
+                  selectedYear,
+                  selectedMonth,
+                  selectedDay,
+                  startHour,
+                  startMinute,
+                  0
+                )
 
                 let isPastTime = false
 
-                if (appointmentDate === currentDate && newStartMinutes <= currentMinutes) {
+                if (appointmentDateTime <= now) {
                   isPastTime = true
                 }
 
