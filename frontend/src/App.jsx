@@ -664,7 +664,7 @@ function App() {
 
               <div className = "hero-benefit">
                 <span className = "benefit-icon">✓</span>
-                <p>Trusted<br />Professionals</p>
+                <p>Trusted<br />Professional</p>
               </div>
 
               <div className = "hero-divider"></div>
@@ -924,8 +924,6 @@ function App() {
 
           </div>
 
-        
-
         <div className = "booking-option-header">
 
           <div className = "booking-option-icon">
@@ -1169,6 +1167,18 @@ function App() {
                 const startMinute = Number(timeParts[1])
                 const newStartMinutes = (startHour * 60) + startMinute
                 const newEndMinutes = newStartMinutes + selectedDuration
+                const now = new Date()
+                const currentYear = now.getFullYear()
+                const currentMonth = String(now.getMonth() + 1).padStart(2, "0")
+                const currentDay = String(now.getDate()).padStart(2, "0")
+                const currentDate = `${currentYear}-${currentMonth}-${currentDay}`
+                const currentMinutes = (now.getHours() * 60) + now.getMinutes()
+
+                let isPastTime = false
+
+                if (appointmentDate === currentDate && newStartMinutes <= currentMinutes) {
+                  isPastTime = true
+                }
 
                 let isBooked = false
 
@@ -1189,7 +1199,7 @@ function App() {
                   timeClass = "selected"
                 }
 
-                if (isBooked) {
+                if (isBooked || isPastTime) {
                   timeClass = "booked"
                 }
 
@@ -1198,7 +1208,7 @@ function App() {
                     type = "button"
                     key = {time}
                     className = {timeClass}
-                    disabled = {isBooked}
+                    disabled = {isBooked || isPastTime}
                     onClick = {() => setSelectedTime(time)}
                   >
                     {formatTime(time)}
